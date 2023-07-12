@@ -2,6 +2,7 @@ import cv2
 import joblib
 import face_recognition
 import datetime
+import time
 
 # Path untuk model yang dilatih
 MODEL_PATH = 'latihfile.pkl'
@@ -28,6 +29,7 @@ label_to_name = {
     0: "dhifa",
     1: "Paijo",
     2: "kazi",
+    3: "yanmaa",
     # Tambahkan entri lain sesuai dengan jumlah kelas yang ada
 }
 
@@ -58,6 +60,7 @@ while True:
             with open('absensi.log', 'a') as f:
                 timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 f.write(f"{timestamp} - {name}\n")
+                #time.sleep(4)
 
     cv2.imshow('Face Recognition', frame)
 

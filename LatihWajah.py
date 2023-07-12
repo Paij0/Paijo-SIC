@@ -18,7 +18,13 @@ def load_known_faces():
     known_names = []
 
     for name in os.listdir(KNOWN_FACES_DIR):
+        if name == '.DS_Store':
+            continue
+        
         for filename in os.listdir(os.path.join(KNOWN_FACES_DIR, name)):
+            if filename == '.DS_Store':
+                continue
+                
             image = cv2.imread(os.path.join(KNOWN_FACES_DIR, name, filename))
             face_encoding = extract_face_encoding(image)
 

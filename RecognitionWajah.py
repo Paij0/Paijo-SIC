@@ -1,6 +1,7 @@
 import cv2
 import joblib
 import face_recognition
+import datetime
 
 # Path untuk model yang dilatih
 MODEL_PATH = 'latihfile.pkl'
@@ -27,8 +28,15 @@ label_to_name = {
     0: "dhifa",
     1: "Paijo",
     2: "kazi",
+    3: "yanmaa",
     # Tambahkan entri lain sesuai dengan jumlah kelas yang ada
 }
+
+# Inisialisasi waktu terakhir penulisan log
+last_log_time = datetime.datetime.min
+
+# Interval waktu untuk penulisan log (dalam detik)
+log_interval = 60  # Misalnya, interval 1 menit
 
 # Mulai pengenalan wajah menggunakan webcam
 camera = cv2.VideoCapture(0)
@@ -49,9 +57,28 @@ while True:
             # Mengubah label menjadi nama menggunakan dictionary
             name = label_to_name.get(label, "Unknown")
 
+            # Mendapatkan waktu saat ini
+            current_time = datetime.datetime.now()
+
+            # Memeriksa interval waktu untuk penulisan log
+            time_diff = current_time - last_log_time
+            if time_diff.total_seconds() >= log_interval:
+                # Simpan absensi ke file log
+                with open('absensi.log', 'a') as f:
+                    timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
+                    f.write(f"{timestamp} - {name}\n")
+
+                # Update waktu terakhir penulisan log
+                last_log_time = current_time
+
             # Menandai wajah dengan kotak dan label
             cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
             cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+        else:
+            # Menandai wajah dengan kotak dan label "Unknown"
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.putText(frame, "Unknown", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
     cv2.imshow('Face Recognition', frame)
 
