@@ -36,6 +36,9 @@ label_to_name = {
 # Mulai pengenalan wajah menggunakan webcam
 camera = cv2.VideoCapture(0)
 
+# Inisiasi waktu terakhir absensi untuk interval waktu
+last_absensi_time = time.time()
+
 while True:
     ret, frame = camera.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -56,11 +59,13 @@ while True:
             cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
             cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
-            # Simpan absensi ke file log
-            with open('absensi.log', 'a') as f:
-                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                f.write(f"{timestamp} - {name}\n")
-                #time.sleep(4)
+            # Simpan absensi ke file log dengan interval waktu 1 menit
+            current_time = time.time()
+            if current_time - last_absensi_time >= 60:
+                with open('absensi.log', 'a') as f:
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    f.write(f"{timestamp} - {name}\n")
+                last_absensi_time = current_time
 
     cv2.imshow('Face Recognition', frame)
 

@@ -1,6 +1,9 @@
 import cv2
 import os
 
+# Path lengkap ke berkas cascade classifier
+CASCADE_PATH = '/home/adjens-team/Paijo-SIC/haarcascade_frontalface_default.xml'
+
 # Nama folder untuk menyimpan gambar wajah
 FACES_FOLDER = 'latih wajah'
 
@@ -13,7 +16,7 @@ os.makedirs(user_folder, exist_ok=True)
 
 # Mulai pengambilan gambar
 camera = cv2.VideoCapture(0)
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 count = 0
 while True:

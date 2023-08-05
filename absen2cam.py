@@ -1,0 +1,209 @@
+import cv2
+import joblib
+import face_recognition
+import datetime
+import time
+
+# Inisiasi waktu terakhir absensi untuk interval waktu
+last_absensi_time = time.time()
+state = False
+
+# Path untuk model yang dilatih
+MODEL_PATH = 'latihfile.pkl'
+
+# Load model yang dilatih
+model = joblib.load(MODEL_PATH)
+
+# Load cascade classifier untuk deteksi wajah
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+# Fungsi untuk ekstraksi vektor encoding wajah menggunakan library face_recognition
+def extract_face_encoding(image):
+    # Menggunakan face_recognition library untuk ekstraksi vektor encoding
+    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    face_encodings = face_recognition.face_encodings(rgb_image)
+
+    if len(face_encodings) > 0:
+        return face_encodings[0]
+
+    return None
+
+def face_recog(frame, cam):
+    global last_absensi_time
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+    for (x, y, w, h) in faces:
+        roi_gray = gray[y:y+h, x:x+w]
+        face_encoding = extract_face_encoding(roi_gray)
+
+        if face_encoding is not None:
+            # Memprediksi label wajah menggunakan model yang dilatih
+            label = model.predict([face_encoding])[0]
+
+            # Mengubah label menjadi nama menggunakan dictionary
+            name = label_to_name.get(label, "Unknown")
+
+            # Menandai wajah dengan kotak dan label
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+            # Simpan absensi ke file log dengan interval waktu 1 menit
+            current_time = time.time()
+            if current_time - last_absensi_time >= 3:
+                with open('absensi.log', 'a') as f:
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    f.write(f"{timestamp} - {cam} - {name}\n")
+                last_absensi_time = current_time
+
+    cv2.imshow(cam, frame)
+
+
+# Dictionary untuk memetakan label ke nama
+label_to_name = {
+    0: "dhifa",
+    1: "Paijo",
+    2: "kazi",
+    3: "yanmaa",
+    # Tambahkan entri lain sesuai dengan jumlah kelas yang ada
+}
+
+# Mulai pengenalan wajah menggunakan webcam
+camera = cv2.VideoCapture(0)
+camera2 = cv2.VideoCapture(2)
+
+
+
+while True:
+    if state:
+        _, frame = camera.read()
+        try:
+            img = cv2.resize(frame,(360,240))
+            cam = 'in'
+            face_recog(frame=img, cam=cam)
+        except:
+            pass
+    else:
+        _, frame = camera2.read()
+        try:
+            img = cv2.resize(frame,(360,240))
+            cam = 'out'
+            face_recog(frame=img, cam=cam)
+        except:
+            pass
+    
+    
+
+    state = ~state # state = bukan state
+
+    # Menghentikan pengenalan wajah dengan menekan tombol 'q' atau 'esc'
+    key = cv2.waitKey(1)
+    if key == ord('q') or key == 27:  # 'q' atau 'esc'
+        break
+
+camera.release()
+camera2.release()
+cv2.destroyAllWindows()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import cv2
+# import joblib
+# import face_recognition
+# import datetime
+# import time
+
+# # Path untuk model yang dilatih
+# MODEL_PATH = 'latihfile.pkl'
+
+# # Load model yang dilatih
+# model = joblib.load(MODEL_PATH)
+
+# # Load cascade classifier untuk deteksi wajah
+# face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+# # Fungsi untuk ekstraksi vektor encoding wajah menggunakan library face_recognition
+# def extract_face_encoding(image):
+#     # Menggunakan face_recognition library untuk ekstraksi vektor encoding
+#     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+#     face_encodings = face_recognition.face_encodings(rgb_image)
+
+#     if len(face_encodings) > 0:
+#         return face_encodings[0]
+
+#     return None
+
+# # Dictionary untuk memetakan label ke nama
+# label_to_name = {
+#     0: "dhifa",
+#     1: "Paijo",
+#     2: "kazi",
+#     3: "yanmaa",
+#     # Tambahkan entri lain sesuai dengan jumlah kelas yang ada
+# }
+
+# # Mulai pengenalan wajah menggunakan webcam
+# camera = cv2.VideoCapture(0)
+
+# # Inisiasi waktu terakhir absensi untuk interval waktu
+# last_absensi_time = time.time()
+
+# while True:
+#     ret, frame = camera.read()
+#     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+#     for (x, y, w, h) in faces:
+#         roi_gray = gray[y:y+h, x:x+w]
+#         face_encoding = extract_face_encoding(roi_gray)
+
+#         if face_encoding is not None:
+#             # Memprediksi label wajah menggunakan model yang dilatih
+#             label = model.predict([face_encoding])[0]
+
+#             # Mengubah label menjadi nama menggunakan dictionary
+#             name = label_to_name.get(label, "Unknown")
+
+#             # Menandai wajah dengan kotak dan label
+#             cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+#             cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+#             # Simpan absensi ke file log dengan interval waktu 1 menit
+#             current_time = time.time()
+#             if current_time - last_absensi_time >= 60:
+#                 with open('absensi.log', 'a') as f:
+#                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#                     f.write(f"{timestamp} - {name}\n")
+#                 last_absensi_time = current_time
+
+#     cv2.imshow('Face Recognition', frame)
+
+#     # Menghentikan pengenalan wajah dengan menekan tombol 'q' atau 'esc'
+#     key = cv2.waitKey(1)
+#     if key == ord('q') or key == 27:  # 'q' atau 'esc'
+#         break
+
+# camera.release()
+# cv2.destroyAllWindows()
+
