@@ -25,7 +25,7 @@ def extract_face_encoding(image):
 
 # Dictionary untuk memetakan label ke nama
 label_to_name = {
-    0: "dhifa",
+    0: "Kazi",
     1: "Paijo",
     2: "kazi",
     3: "yanmaa",
@@ -39,7 +39,7 @@ last_log_time = datetime.datetime.min
 log_interval = 60  # Misalnya, interval 1 menit
 
 # Mulai pengenalan wajah menggunakan webcam
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(2)
 
 while True:
     ret, frame = camera.read()
