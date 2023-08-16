@@ -18,7 +18,7 @@ def extract_face_encoding(image):
     if len(face_encodings) > 0:
         return face_encodings[0]
     return None
-
+    
 # Dictionary to map label to name
 label_to_name = {
     0: "dhifa",
